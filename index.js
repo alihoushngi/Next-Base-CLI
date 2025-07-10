@@ -157,18 +157,11 @@ html.font-fa {
       {
         file: "next.config.ts",
         search: /\/\/ PLACEHOLDER_PWA_IMPORT/,
-        replace: `// PLACEHOLDER_PWA_IMPORT
-import withPWA from "next-pwa";`,
+        replace: `// PLACEHOLDER_PWA_IMPORT\nimport withPWA from "next-pwa";`,
       },
       {
         file: "next.config.ts",
-        search: /\/\/ PLACEHOLDER_EXPORT_CONFIG/,
-        replace: `// PLACEHOLDER_EXPORT_CONFIG
-export default withPwa(nextConfig);`,
-      },
-      {
-        file: "next.config.ts",
-        search: /const withPwa = withPWA\([\s\S]*?\);/,
+        search: /const withPwa = \(\) => \{\};/, // حذف تابع فیک اولیه
         replace: `const withPwa = withPWA({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
@@ -176,6 +169,16 @@ export default withPwa(nextConfig);`,
   skipWaiting: true,
   buildExcludes: [/middleware-manifest\\.json$/, /app-build-manifest\\.json$/],
 });`,
+      },
+      {
+        file: "next.config.ts",
+        search: /\/\/ PLACEHOLDER_EXPORT_CONFIG/, // جایگزینی اکسپورت
+        replace: `// PLACEHOLDER_EXPORT_CONFIG\nexport default withPwa(nextConfig);`,
+      },
+      {
+        file: "next.config.ts",
+        search: /export default nextConfig;/, // حذف اکسپورت اشتباه
+        replace: ``,
       },
     ],
   },
@@ -354,8 +357,10 @@ async function run() {
     /\n?{\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g,
     /<Toaster \/>/g,
     /^\s*{\s*}\s*$/gm,
-    /const withPwa = \(\) => \{\};/g,
-    /\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/([\s\S]*?)\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\//g,
+    /const withPwa = \(\) => \{\};/g, // حذف تابع فیک
+    /export default nextConfig;/g, // حذف اکسپورت دوبل در صورت وجود
+    /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/}/g,
+    /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\/}/g,
   ];
 
   for (const file of filesToClean) {
