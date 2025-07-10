@@ -231,26 +231,19 @@ async function run() {
     }
   }
 
-  // Install dependencies
+  console.log(`📦 Skipped installing dependencies for selected features.\n`);
+
   for (const key of selectedFeatures) {
     const feature = features[key];
-    const deps = feature.packages.filter((p) => !p.startsWith("@types/"));
-    const devDeps = feature.packages.filter((p) => p.startsWith("@types/"));
-
-    if (deps.length)
-      execSync(`npm install ${deps.join(" ")}`, {
-        stdio: "inherit",
-        cwd: path.resolve(process.cwd(), folder),
-      });
-
-    if (devDeps.length)
-      execSync(`npm install -D ${devDeps.join(" ")}`, {
-        stdio: "inherit",
-        cwd: path.resolve(process.cwd(), folder),
-      });
-
-    console.log(`✅ Installed: ${key}`);
+    if (feature.packages.length) {
+      console.log(`🔧 ${feature.label} needs these packages:`);
+      console.log(`   ${feature.packages.join(" ")}`);
+    }
   }
+
+  console.log(
+    `\n👉 Please run "npm install" inside the "${folder}" folder manually to install all required packages.\n`
+  );
 
   // Copy files
   for (const key of selectedFeatures) {
@@ -339,7 +332,7 @@ async function run() {
   );
   console.log(`🚀 Project created at: ./${folder}`);
   console.log("👉 To start developing:");
-  console.log(`   cd ${folder} && npm run dev\n`);
+  console.log(`   cd ${folder} && npm install && npm run dev\n`);
 }
 
 run();
