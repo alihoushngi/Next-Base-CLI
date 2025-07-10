@@ -33,6 +33,10 @@ const features = {
         to: "src/components/shared/I18n/I18nProvider.tsx",
       },
       {
+        from: "setup/features/i18n/Language/LanguageSwitcher.tsx",
+        to: "src/components/shared/Language/LanguageSwitcher.tsx",
+      },
+      {
         from: "setup/features/i18n/locales",
         to: "public/locales",
       },
@@ -47,8 +51,8 @@ const features = {
       {
         file: "src/app/layout.tsx",
         search:
-          /{\/\* PLACEHOLDER_I18N_PROVIDER_START \*\/}([\s\S]*?){\/\* PLACEHOLDER_I18N_PROVIDER_END \*\/}/,
-        replace: `/* PLACEHOLDER_I18N_PROVIDER_START */\n<I18nProvider>$1</I18nProvider>\n/* PLACEHOLDER_I18N_PROVIDER_END */`,
+          /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/}([\s\S]*?){\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\/}/,
+        replace: `{/* PLACEHOLDER_I18N_PROVIDER_START */}\n<I18nProvider>$1</I18nProvider>\n{/* PLACEHOLDER_I18N_PROVIDER_END */}`,
       },
       {
         file: "src/styles/globals.css",
@@ -231,19 +235,27 @@ async function run() {
     }
   }
 
-  console.log(`📦 Skipped installing dependencies for selected features.\n`);
+  const allPackages = selectedFeatures
+    .flatMap((key) => features[key].packages)
+    .filter(Boolean);
 
-  for (const key of selectedFeatures) {
-    const feature = features[key];
-    if (feature.packages.length) {
-      console.log(`🔧 ${feature.label} needs these packages:`);
-      console.log(`   ${feature.packages.join(" ")}`);
+  if (allPackages.length > 0) {
+    console.log(
+      `📦 Installing selected feature packages:\n> ${allPackages.join(" ")}`
+    );
+    try {
+      execSync(`npm install ${allPackages.join(" ")}`, {
+        cwd: projectPath,
+        stdio: "inherit",
+      });
+      console.log("✅ Packages installed successfully.\n");
+    } catch (error) {
+      console.error(
+        "❌ Failed to install packages automatically. Please try installing them manually."
+      );
+      process.exit(1);
     }
   }
-
-  console.log(
-    `\n👉 Please run "npm install" inside the "${folder}" folder manually to install all required packages.\n`
-  );
 
   // Copy files
   for (const key of selectedFeatures) {
@@ -305,17 +317,14 @@ async function run() {
   const filesToClean = [layoutPath, navbarPath, cssPath];
 
   for (const file of filesToClean) {
-    await injectCode(
-      file,
-      /\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/[\s\S]*?\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\//g,
-      ""
-    );
-    await injectCode(
-      file,
-      /{\/\*\s*PLACEHOLDER_[A-Z_]+(?:_START|_END)?\s*\*\/}/g,
-      ""
-    );
+    await injectCode(file, /\/\/\s*PLACEHOLDER_[A-Z_]+/g, "");
     await injectCode(file, /\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\//g, "");
+    await injectCode(file, /{\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\/}/g, "");
+    await injectCode(
+      file,
+      /{\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/}([\s\S]*?){\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g,
+      "$1"
+    );
     await injectCode(file, /<Toaster \/>/g, "");
   }
 
