@@ -1,10 +1,20 @@
 "use client";
 import Button from "@/components/shared/Button/Button";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const LandingPage = () => {
-  const { t, i18n } = useTranslation("landing");
-  const isFa = i18n.language === "fa";
+  const { t, i18n, ready } = useTranslation("landing");
+
+  const [isClient, setIsClient] = useState(false);
+  const [isFa, setIsFa] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    setIsFa(i18n.language === "fa");
+  }, [i18n.language]);
+
+  if (!isClient || !ready) return null;
 
   return (
     <section

@@ -1,13 +1,22 @@
 "use client";
 
-import Button from "@/components/shared/Button/Button";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import Button from "@/components/shared/Button/Button";
 import { FaLinkedinIn } from "react-icons/fa";
 import { SiGmail } from "react-icons/si";
 import { TbBrandGithubFilled } from "react-icons/tb";
 
 const Footer = () => {
   const { t, i18n } = useTranslation("footer");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   const isFa = i18n.language === "fa";
 
   return (

@@ -174,12 +174,7 @@ const withPwa = withPWA({
   theme: {
     label: "🌙 Theme (next-themes)",
     packages: ["next-themes"],
-    files: [
-      {
-        from: "setup/features/theme/ThemeSwitcher.tsx",
-        to: "src/components/shared/ThemeSwitcher.tsx",
-      },
-    ],
+    files: [],
     injectCode: [
       {
         file: "src/components/layout/Navbar.tsx",
@@ -190,6 +185,17 @@ const withPwa = withPWA({
         file: "src/components/layout/Navbar.tsx",
         search: /{\/\* PLACEHOLDER_THEME_SWITCHER \*\/}/,
         replace: `<ThemeSwitcher />`,
+      },
+      {
+        file: "src/app/layout.tsx",
+        search: /\/\/ PLACEHOLDER_THEME_IMPORT/,
+        replace: `import { ThemeProvider } from "next-themes";`,
+      },
+      {
+        file: "src/app/layout.tsx",
+        search:
+          /{\/\* PLACEHOLDER_THEME_PROVIDER_START \*\/}([\s\S]*?){\/\* PLACEHOLDER_THEME_PROVIDER_END \*\/}/,
+        replace: `<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>$1</ThemeProvider>`,
       },
     ],
   },
@@ -257,6 +263,20 @@ async function run() {
     }
   }
 
+  const hasI18n = selectedFeatures.includes("i18n");
+
+  // Override theme switcher file based on i18n
+  const themeSwitcherFile = {
+    from: hasI18n
+      ? "setup/features/i18n/theme-switcher-i18n.tsx"
+      : "setup/features/theme/ThemeSwitcher.tsx",
+    to: "src/components/shared/ThemeSwitcher.tsx",
+  };
+
+  // Replace the default in features.theme.files
+  const themeFeature = features["theme"];
+  themeFeature.files = [themeSwitcherFile];
+
   // Copy files
   for (const key of selectedFeatures) {
     const feature = features[key];
@@ -272,7 +292,6 @@ async function run() {
   }
 
   // Copy fallback or feature Footer + LandingPage based on i18n
-  const hasI18n = selectedFeatures.includes("i18n");
 
   const extraFiles = [
     {
@@ -320,11 +339,8 @@ async function run() {
     await injectCode(file, /\/\/\s*PLACEHOLDER_[A-Z_]+/g, "");
     await injectCode(file, /\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\//g, "");
     await injectCode(file, /{\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\/}/g, "");
-    await injectCode(
-      file,
-      /{\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/}([\s\S]*?){\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g,
-      "$1"
-    );
+    await injectCode(file, /{\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/}\n?/g, "");
+    await injectCode(file, /\n?{\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g, "");
     await injectCode(file, /<Toaster \/>/g, "");
   }
 
