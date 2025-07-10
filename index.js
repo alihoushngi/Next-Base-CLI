@@ -29,8 +29,8 @@ const features = {
         to: "src/i18n/types.ts",
       },
       {
-        from: "setup/features/i18n/Language",
-        to: "src/components/shared/Language",
+        from: "setup/features/i18n/Language/I18nProvider.tsx",
+        to: "src/components/shared/I18n/I18nProvider.tsx",
       },
       {
         from: "setup/features/i18n/locales",
@@ -283,7 +283,6 @@ async function run() {
     fs.ensureDirSync(path.dirname(toPath));
     fs.copyFileSync(fromPath, toPath);
   }
-  console.log("📁 Footer & LandingPage copied based on i18n feature");
 
   // Inject code
   for (const key of selectedFeatures) {
@@ -292,7 +291,6 @@ async function run() {
       const filePath = path.resolve(process.cwd(), folder, injection.file);
       await injectCode(filePath, injection.search, injection.replace);
     }
-    console.log(`✍️ Code injected for: ${key}`);
   }
 
   // Clean up all placeholders (whether used or not)
@@ -307,13 +305,17 @@ async function run() {
   const filesToClean = [layoutPath, navbarPath, cssPath];
 
   for (const file of filesToClean) {
-    await injectCode(file, /\/\/ PLACEHOLDER_[A-Z_]+/g, "");
     await injectCode(
       file,
-      /{\/\* PLACEHOLDER_[A-Z_]+_START \*\/}([\s\S]*?){\/\* PLACEHOLDER_[A-Z_]+_END \*\/}/g,
-      "$1"
+      /\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/[\s\S]*?\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\//g,
+      ""
     );
-    await injectCode(file, /{\/\* PLACEHOLDER_[A-Z_]+ \*\/}/g, "");
+    await injectCode(
+      file,
+      /{\/\*\s*PLACEHOLDER_[A-Z_]+(?:_START|_END)?\s*\*\/}/g,
+      ""
+    );
+    await injectCode(file, /\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\//g, "");
     await injectCode(file, /<Toaster \/>/g, "");
   }
 
@@ -321,7 +323,6 @@ async function run() {
   const setupPath = path.resolve(process.cwd(), folder, "setup");
   if (fs.existsSync(setupPath)) {
     fs.rmSync(setupPath, { recursive: true, force: true });
-    console.log("🧹 Setup folder removed");
   }
 
   // Final Summary
