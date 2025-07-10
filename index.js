@@ -335,13 +335,20 @@ async function run() {
 
   const filesToClean = [layoutPath, navbarPath, cssPath];
 
+  const cleanupPatterns = [
+    /\/\/\s*PLACEHOLDER_[A-Z_]+/g,
+    /\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\//g,
+    /{\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\/}/g,
+    /{\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/}\n?/g,
+    /\n?{\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g,
+    /<Toaster \/>/g,
+    /^\s*{\s*}\s*$/gm,
+  ];
+
   for (const file of filesToClean) {
-    await injectCode(file, /\/\/\s*PLACEHOLDER_[A-Z_]+/g, "");
-    await injectCode(file, /\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\//g, "");
-    await injectCode(file, /{\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\/}/g, "");
-    await injectCode(file, /{\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/}\n?/g, "");
-    await injectCode(file, /\n?{\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g, "");
-    await injectCode(file, /<Toaster \/>/g, "");
+    for (const pattern of cleanupPatterns) {
+      await injectCode(file, pattern, "");
+    }
   }
 
   // Remove setup folder
