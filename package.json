@@ -1,0 +1,31 @@
+{
+  "name": "create-next-core-base",
+  "version": "1.1.4",
+  "description": "CLI tool to create Next Base projects with feature selection",
+  "bin": {
+    "create-next-core-base": "./bin/create-next-base.js"
+  },
+  "scripts": {
+    "start": "node ./bin/create-next-base.js"
+  },
+  "keywords": [
+    "nextjs",
+    "cli",
+    "create-next-base",
+    "create-next-app",
+    "create-react-app"
+  ],
+  "author": "Ali Hooshangi",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^11.1.1",
+    "prompts": "^2.4.2",
+    "replace-in-file": "^6.3.5"
+  },
+  "files": [
+    "bin",
+    "index.js",
+    "utils.js",
+    "setup"
+  ]
+}
