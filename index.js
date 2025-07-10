@@ -219,7 +219,7 @@ async function run() {
       type: "confirm",
       name: "enabled",
       message: `🔧 Include ${feature.label}?`,
-      initial: false,
+      initial: true,
     });
     if (enabled) selectedFeatures.push(key);
   }
