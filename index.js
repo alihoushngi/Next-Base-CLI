@@ -158,9 +158,18 @@ html.font-fa {
         file: "next.config.ts",
         search: /\/\/ PLACEHOLDER_PWA_IMPORT/,
         replace: `// PLACEHOLDER_PWA_IMPORT
-import withPWA from "next-pwa";
-
-const withPwa = withPWA({
+import withPWA from "next-pwa";`,
+      },
+      {
+        file: "next.config.ts",
+        search: /\/\/ PLACEHOLDER_EXPORT_CONFIG/,
+        replace: `// PLACEHOLDER_EXPORT_CONFIG
+export default withPwa(nextConfig);`,
+      },
+      {
+        file: "next.config.ts",
+        search: /const withPwa = withPWA\([\s\S]*?\);/,
+        replace: `const withPwa = withPWA({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
@@ -333,7 +342,9 @@ async function run() {
   );
   const cssPath = path.resolve(process.cwd(), folder, "src/styles/globals.css");
 
-  const filesToClean = [layoutPath, navbarPath, cssPath];
+  const nextConfigPath = path.resolve(process.cwd(), folder, "next.config.ts");
+
+  const filesToClean = [layoutPath, navbarPath, cssPath, nextConfigPath];
 
   const cleanupPatterns = [
     /\/\/\s*PLACEHOLDER_[A-Z_]+/g,
@@ -343,6 +354,8 @@ async function run() {
     /\n?{\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g,
     /<Toaster \/>/g,
     /^\s*{\s*}\s*$/gm,
+    /const withPwa = \(\) => \{\};/g,
+    /\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/([\s\S]*?)\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\//g,
   ];
 
   for (const file of filesToClean) {
