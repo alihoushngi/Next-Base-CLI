@@ -396,7 +396,7 @@ async function run() {
   );
   console.log(`🚀 Project created at: ./${folder}`);
   console.log("👉 To start developing:");
-  console.log(`   cd ${folder} && npm install && npm run dev\n`);
+  console.log(`🧑🏻‍💻 cd ${folder} && npm run dev\n`);
 }
 
 run();
