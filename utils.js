@@ -14,7 +14,7 @@ async function injectCode(filePath, searchValue, replaceValue) {
       from: searchValue,
       to: replaceValue,
     });
-    console.log(`✏️ Code successfully injected into: ${filePath}`);
+    // console.log(`✏️ Code successfully injected into: ${filePath}`);
   } catch (error) {
     console.error(`❌ Failed to inject code into: ${filePath}`, error);
   }

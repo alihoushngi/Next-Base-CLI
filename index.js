@@ -48,11 +48,17 @@ const features = {
         replace:
           'import I18nProvider from "@/components/shared/I18n/I18nProvider";',
       },
+      // {
+      //   file: "src/app/layout.tsx",
+      //   search:
+      //     /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/}\s*\n([\s\S]*?)\n\s*{\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\/}/,
+      //   replace: `{\n/* PLACEHOLDER_I18N_PROVIDER_START */\n}<I18nProvider>$1</I18nProvider>{\n/* PLACEHOLDER_I18N_PROVIDER_END */\n}`,
+      // },
       {
         file: "src/app/layout.tsx",
         search:
           /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/}([\s\S]*?){\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\/}/,
-        replace: `{/* PLACEHOLDER_I18N_PROVIDER_START */}\n<I18nProvider>$1</I18nProvider>\n{/* PLACEHOLDER_I18N_PROVIDER_END */}`,
+        replace: `<I18nProvider>$1</I18nProvider>`,
       },
       {
         file: "src/styles/globals.css",
@@ -146,41 +152,14 @@ html.font-fa {
 
   pwa: {
     label: "📱 PWA (next-pwa)",
-    packages: ["next-pwa", "@types/service-worker-mock"],
+    packages: ["next-pwa@5.6.0", "@types/service-worker-mock@2.0.4"],
     files: [
       {
         from: "setup/features/pwa/next-pwa.d.ts",
         to: "src/types/next-pwa.d.ts",
       },
     ],
-    injectCode: [
-      {
-        file: "next.config.ts",
-        search: /\/\/ PLACEHOLDER_PWA_IMPORT/,
-        replace: `// PLACEHOLDER_PWA_IMPORT\nimport withPWA from "next-pwa";`,
-      },
-      {
-        file: "next.config.ts",
-        search: /const withPwa = \(\) => \{\};/, // حذف تابع فیک اولیه
-        replace: `const withPwa = withPWA({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-  skipWaiting: true,
-  buildExcludes: [/middleware-manifest\\.json$/, /app-build-manifest\\.json$/],
-});`,
-      },
-      {
-        file: "next.config.ts",
-        search: /\/\/ PLACEHOLDER_EXPORT_CONFIG/, // جایگزینی اکسپورت
-        replace: `// PLACEHOLDER_EXPORT_CONFIG\nexport default withPwa(nextConfig);`,
-      },
-      {
-        file: "next.config.ts",
-        search: /export default nextConfig;/, // حذف اکسپورت اشتباه
-        replace: ``,
-      },
-    ],
+    injectCode: [],
   },
 
   theme: {
@@ -252,6 +231,21 @@ async function run() {
       console.log(`🗑️ Removed ${dir} folder`);
     }
   }
+
+  // ✅ Copy appropriate next.config.ts based on selected features
+  const nextConfigSource = selectedFeatures.includes("pwa")
+    ? "setup/features/i18n/next-config-i18n.ts"
+    : "setup/fallbacks/i18n/next-config-no-i18n.ts";
+
+  const nextConfigTarget = path.resolve(projectPath, "next.config.ts");
+
+  const resolvedNextConfigSource = resolvePath(nextConfigSource);
+  fs.copyFileSync(resolvedNextConfigSource, nextConfigTarget);
+  console.log(
+    `⚙️ Copied ${
+      selectedFeatures.includes("pwa") ? "PWA-enabled" : "basic"
+    } next.config.ts`
+  );
 
   const allPackages = selectedFeatures
     .flatMap((key) => features[key].packages)
@@ -350,17 +344,36 @@ async function run() {
   const filesToClean = [layoutPath, navbarPath, cssPath, nextConfigPath];
 
   const cleanupPatterns = [
-    /\/\/\s*PLACEHOLDER_[A-Z_]+/g,
-    /\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\//g,
-    /{\/\*\s*PLACEHOLDER_[A-Z_]+\s*\*\/}/g,
-    /{\/\*\s*PLACEHOLDER_[A-Z_]+_START\s*\*\/}\n?/g,
-    /\n?{\/\*\s*PLACEHOLDER_[A-Z_]+_END\s*\*\/}/g,
-    /<Toaster \/>/g,
-    /^\s*{\s*}\s*$/gm,
-    /const withPwa = \(\) => \{\};/g, // حذف تابع فیک
-    /export default nextConfig;/g, // حذف اکسپورت دوبل در صورت وجود
-    /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_START\s*\*\/}/g,
-    /{\/\*\s*PLACEHOLDER_I18N_PROVIDER_END\s*\*\/}/g,
+    // ✅ Import placeholders (inline comment)
+    /^\s*\/\/ PLACEHOLDER_REDUX_IMPORT\s*$/gm,
+    /^\s*\/\/ PLACEHOLDER_TOASTER_IMPORT\s*$/gm,
+    /^\s*\/\/ PLACEHOLDER_THEME_IMPORT\s*$/gm,
+    /^\s*\/\/ PLACEHOLDER_I18N_IMPORT\s*$/gm,
+
+    // ✅ JSX wrapper placeholders (no content inside)
+    /{\/\* PLACEHOLDER_REDUX_PROVIDER_START \*\/}/g,
+    /{\/\* PLACEHOLDER_REDUX_PROVIDER_END \*\/}/g,
+    /{\/\* PLACEHOLDER_THEME_PROVIDER_START \*\/}/g,
+    /{\/\* PLACEHOLDER_THEME_PROVIDER_END \*\/}/g,
+    /{\/\* PLACEHOLDER_I18N_PROVIDER_START \*\/}/g,
+    /{\/\* PLACEHOLDER_I18N_PROVIDER_END \*\/}/g,
+
+    // ✅ JSX components placeholders
+    /{\/\* PLACEHOLDER_TOASTER \*\/}/g,
+    /{\/\* PLACEHOLDER_THEME_SWITCHER \*\/}/g,
+    /{\/\* PLACEHOLDER_I18N_SWITCHER \*\/}/g,
+
+    // ✅ Import placeholders in block comments
+    /\/\* PLACEHOLDER_I18N_SWITCHER_IMPORT \*\//g,
+    /\/\* PLACEHOLDER_THEME_SWITCHER_IMPORT \*\//g,
+
+    // ✅ Toaster messages
+    /^\s*\/\/ PLACEHOLDER_TOASTER_SUCCESS_MESSAGE\s*$/gm,
+    /^\s*\/\/ PLACEHOLDER_TOASTER_ERROR1_MESSAGE\s*$/gm,
+    /^\s*\/\/ PLACEHOLDER_TOASTER_ERROR2_MESSAGE\s*$/gm,
+
+    // ✅ CSS font placeholder
+    /\/\* PLACEHOLDER_I18N_FONTS \*\//g,
   ];
 
   for (const file of filesToClean) {
