@@ -10,14 +10,10 @@ const Footer = () => {
     <footer className="bg-white dark:bg-black w-full">
       <div className="max-w-[950px] m-auto flex flex-col gap-10 justify-between items-center px-6 py-12">
         <div className="w-full flex flex-col gap-5">
-          <h4
-            className={`font-bold text-2xl ${
-              isFa ? "text-right" : "text-left"
-            }`}
-          >
+          <h4 className="font-bold text-2xl text-left">
             Hi, I’m Ali Hooshangi 👋
           </h4>
-          <p className={`font-light text-base ${isFa ? "text-justify" : ""}`}>
+          <p className="font-light text-base">
             Frontend Developer with 6+ years...
           </p>
           <div className="flex w-full justify-start items-start text-xl gap-2">
@@ -47,11 +43,7 @@ const Footer = () => {
             </Button>
           </div>
         </div>
-        <div
-          className={`w-full px-6 py-12 rounded-xl dark:bg-gray-800 bg-slate-50 ${
-            isFa ? "text-right" : "text-left"
-          }`}
-        >
+        <div className="w-full px-6 py-12 rounded-xl dark:bg-gray-800 bg-slate-50 text-left">
           <p>Like the project? Star it on GitHub...</p>
           <q>Skip setup. Start building. ⚡</q>
         </div>
