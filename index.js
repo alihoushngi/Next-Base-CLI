@@ -96,7 +96,7 @@ html.font-fa {
       },
       {
         file: "src/app/layout.tsx",
-        search: /{\/\* PLACEHOLDER_TOASTER_IMPORT \*\/}/,
+        search: /^\s*\/\/ PLACEHOLDER_TOASTER_IMPORT\s*$/m,
         replace: `import { Toaster } from "react-hot-toast";`,
       },
       {
