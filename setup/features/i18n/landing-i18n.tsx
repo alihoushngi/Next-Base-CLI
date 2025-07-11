@@ -27,15 +27,26 @@ const LandingPage = () => {
         <h1 className="font-black text-3xl text-center">{t("title")}</h1>
         <p className="text-center">{t("description")}</p>
       </div>
-      <Button
-        href="https://github.com/alihoushngi/Next-Base"
-        target="_blank"
-        aria-label="github link"
-        link
-        className="m-auto pl-3 pr-5"
-      >
-        {t("button_github")}
-      </Button>
+      <div className="flex justify-center items-center gap-2 w-full">
+        <Button
+          href="https://github.com/alihoushngi/Next-Base"
+          target="_blank"
+          aria-label="github link"
+          link
+          className="pl-3 pr-5"
+        >
+          {t("button_github")}
+        </Button>
+        <Button
+          target="_blank"
+          aria-label="copy cli"
+          className="pl-3 pr-5"
+          copy
+          copyText="npx create-next-core-base"
+        >
+          npx create-next-core-base
+        </Button>
+      </div>
 
       <div className="flex flex-col justify-center items-center w-full">
         <div className="w-full flex flex-col gap-2 justify-start bg-white dark:bg-black p-4 rounded-ss-xl rounded-se-xl">
